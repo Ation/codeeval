@@ -24,9 +24,9 @@ int GetRouteCount(int map, int x, int y) {
 }
 
 int main(void) {
-	int result = GetRouteCount(1, 0, 1);
+	int result = GetRouteCount(1, 0, 1) << 1;
 
-	cout << (result<<1) << endl;
+	cout << result << endl;
 
 	return 0;
 }

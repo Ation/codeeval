@@ -6,10 +6,10 @@ template< template<int, int, int> class _MR, int map, int x, int y, bool visited
 struct GetCount {
 	enum Result
 	{
-		value =	_MR<(map | (1 << ( ( x * 4) +y ))), (x-1), y>::value +
-				_MR<(map | (1 << ( ( x * 4) +y ))), (x+1), y>::value +
-				_MR<(map | (1 << ( ( x * 4) +y ))), x, (y-1)>::value +
-				_MR<(map | (1 << ( ( x * 4) +y ))), x, (y+1)>::value
+		value =	_MR<(map | (1 << ( ( x << 2) +y ))), (x-1), y>::value +
+				_MR<(map | (1 << ( ( x << 2) +y ))), (x+1), y>::value +
+				_MR<(map | (1 << ( ( x << 2) +y ))), x, (y-1)>::value +
+				_MR<(map | (1 << ( ( x << 2) +y ))), x, (y+1)>::value
 	};
 };
 
@@ -23,7 +23,7 @@ struct GetCount<_MR, map, x, y, true> {
 
 template <int map, int x, int y>
 struct MapRoute {
-	enum Result { value = 	GetCount<MapRoute, map, x, y, ( (map & ( 1 << ( (x * 4) +y))) != 0 )>::value };
+	enum Result { value = 	GetCount<MapRoute, map, x, y, ( (map & ( 1 << ( (x << 2) +y))) != 0 )>::value };
 };
 
 template<int map, int y>
@@ -49,10 +49,6 @@ struct MapRoute<map, x, 4> {
 template<int map>
 struct MapRoute<map, 3, 3> {
 	enum Result { value = 1 };
-};
-
-struct SearchResult {
-	enum Result { value = MapRoute<0, 0, 0>::value };
 };
 
 int main(void) {
