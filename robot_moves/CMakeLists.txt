@@ -6,7 +6,14 @@ set( SOURCES
   direct_search.cpp
   )
 
-set( HEADERS
-  )
+set( TEMPLATE_SOURCES
+	template_search.cpp
+)
 
-add_executable( robot_moves ${SOURCES} ${HEADERS} )
+set( RECURSE_SOURCES
+	recurse.cpp
+)
+
+add_executable( robot_moves ${SOURCES} )
+add_executable( template_moves ${TEMPLATE_SOURCES} )
+add_executable( recurse ${RECURSE_SOURCES} )
