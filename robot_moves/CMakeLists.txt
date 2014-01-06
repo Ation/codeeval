@@ -14,6 +14,11 @@ set( RECURSE_SOURCES
 	recurse.cpp
 )
 
+set( CONST_SOURCES
+	constexpr.cpp
+)
+
 add_executable( robot_moves ${SOURCES} )
 add_executable( template_moves ${TEMPLATE_SOURCES} )
 add_executable( recurse ${RECURSE_SOURCES} )
+add_executable( const ${CONST_SOURCES})
