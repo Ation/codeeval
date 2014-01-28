@@ -7,7 +7,7 @@ using namespace std;
 
 typedef void (*print_function)(char );
 
-static print_function printer = nullptr;
+static print_function printer;
 
 void space_print(char  _s) {
     cout << " " << _s;
@@ -33,6 +33,10 @@ int main(int argc, char *argv[]) {
     vector<char>    symbols;
 
     while ( getline(inFile, inputLine)) {
+        if (inputLine.length() < 5) {
+            break;
+        }
+
         printer = just_print;
         int x_size = 0;
         int y_size = 0;
@@ -47,17 +51,18 @@ int main(int argc, char *argv[]) {
 
         string::iterator input_iterator = inputLine.begin();
         while (';' != *input_iterator) {
-            x_size = x_size*10 + (*input_iterator - '0');
+            y_size = y_size*10 + (*input_iterator - '0');
             ++input_iterator;
         }
 
         ++input_iterator;
         while (';' != *input_iterator) {
-            y_size = y_size*10 + (*input_iterator - '0');
+            x_size = x_size*10 + (*input_iterator - '0');
             ++input_iterator;
         }
         ++input_iterator;
 
+        int i=0;
         total_size = x_size * y_size;
         symbols.resize(total_size);
         // get the symbols
@@ -69,14 +74,22 @@ int main(int argc, char *argv[]) {
                     left_offset = 0;
                     top_offset += x_size;
                 }
+                i++;
+                if (i == total_size) {
+                    break;
+                }
             }
             ++input_iterator;
+        }
+
+        if (i != total_size) {
+            break;
         }
 
         top_offset = 0;
         left_offset = 0;
 
-        int i =0;
+        i =0;
         end = 0;
 
         int x;
