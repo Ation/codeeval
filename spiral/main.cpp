@@ -5,15 +5,15 @@
 
 using namespace std;
 
-typedef void (*print_function)(char );
+typedef void (*print_function)(const string& );
 
 static print_function printer;
 
-void space_print(char  _s) {
+void space_print(const string&  _s) {
     cout << " " << _s;
 }
 
-void just_print(char  _s) {
+void just_print(const string&  _s) {
     cout << _s;
     printer = space_print;
 }
@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    vector<char>    symbols;
+    vector<string>    symbols;
 
     while ( getline(inFile, inputLine)) {
         if (inputLine.length() < 5) {
@@ -49,15 +49,15 @@ int main(int argc, char *argv[]) {
         int left_offset = 0;
         int right_offset = 0;
 
-        string::iterator input_iterator = inputLine.begin();
-        while (';' != *input_iterator) {
-            y_size = y_size*10 + (*input_iterator - '0');
+        int input_iterator = 0;
+        while (';' != inputLine[input_iterator]) {
+            y_size = y_size*10 + (inputLine[input_iterator] - '0');
             ++input_iterator;
         }
 
         ++input_iterator;
-        while (';' != *input_iterator) {
-            x_size = x_size*10 + (*input_iterator - '0');
+        while (';' != inputLine[input_iterator]) {
+            x_size = x_size*10 + (inputLine[input_iterator] - '0');
             ++input_iterator;
         }
         ++input_iterator;
@@ -66,20 +66,19 @@ int main(int argc, char *argv[]) {
         total_size = x_size * y_size;
         symbols.resize(total_size);
         // get the symbols
-        while (inputLine.end() != input_iterator) {
-            if (' ' != *input_iterator) {
-                symbols[top_offset + left_offset] = *input_iterator;
-                ++left_offset;
-                if (left_offset == x_size) {
-                    left_offset = 0;
-                    top_offset += x_size;
-                }
+        while (inputLine.size() != input_iterator) {
+            if (' ' != inputLine[input_iterator]) {
+                int begin = input_iterator;
+                while ( input_iterator != inputLine.size() && inputLine[input_iterator] != ' ') input_iterator++;
+
+                symbols[i] = (inputLine.substr(begin, input_iterator-begin));
                 i++;
                 if (i == total_size) {
                     break;
                 }
+            } else {
+                ++input_iterator;
             }
-            ++input_iterator;
         }
 
         if (i != total_size) {
