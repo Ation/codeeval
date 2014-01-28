@@ -1,0 +1,2 @@
+Solution to Spiral printing challange
+https://www.codeeval.com/open_challenges/57/
