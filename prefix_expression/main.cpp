@@ -2,8 +2,23 @@
 #include <fstream>
 #include <string>
 #include <stack>
+#include <queue>
 
 using namespace std;
+
+typedef int (*functor)(int, int);
+
+int add_functor(int left, int right) {
+    return left + right;
+}
+
+int mult_functor(int left, int right) {
+    return left * right;
+}
+
+int div_functor(int left, int right) {
+    return left / right;
+}
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
@@ -18,56 +33,66 @@ int main(int argc, char *argv[]) {
     }
 
     while ( getline(inFile, inputLine)) {
-        stack<int>  values;
-        int left;
-        int right;
+        stack<functor> operators;
+        queue<int> numbers;
+
+        int i;
         char current;
 
-        for (int i = inputLine.length()-1; i >= 0;/*do nothing*/) {
+        for (i=0; i<inputLine.length(); i++) {
             current = inputLine[i];
-
-            if (current >= '0' && current <= '9') {
-                int next_value = 0;
-                int m = 1;
-                // read number and push on stack
-                while ((i >= 0) && (current != ' ')) {
-                    next_value += (current - '0') * m;
-                    m *= 10;
-
-                    --i;
-                    current = inputLine[i];                    
-                }
-
-                do { --i; } while ((i >= 0) && (inputLine[i] == ' '));
-
-                values.push(next_value);
-            } else {
-                left = values.top();
-                values.pop();
-
-                right= values.top();
-                values.pop();
-
-                switch (current) {
-                case '+':
-                    values.push(left + right);
-                    break;
-                case '*':
-                    values.push(left*right);
-                    break;
-                case '/':
-                    values.push(left/right);
-                    break;
-                default:
-                    i = -1;
-                    break;
-                }
-
-                do { --i; } while ((i >= 0) && (inputLine[i] == ' '));
+            if (current == ' ') {
+                continue;
             }
+
+            switch (current) {
+            case '+':
+                operators.push(add_functor);
+                continue;
+            case '*':
+                operators.push(mult_functor);
+                continue;
+            case '/':
+                operators.push(div_functor);
+                continue;
+            }
+
+            // current should be a number
+            break;
         }
 
-        cout << values.top() << endl;
+        // enter the numbers
+        for (; i < inputLine.length(); i++) {
+            int v=0;
+
+            for (; i < inputLine.length(); i++) {
+                current = inputLine[i];
+                if (current == ' ') {
+                    break;
+                }
+
+                v += v * 10 + (current - '0');
+            }
+
+            numbers.push(v);
+        }
+
+        functor _f;
+        int right;
+        int left = numbers.front();
+        numbers.pop();
+
+        while (!operators.empty()) {
+            right = numbers.front();
+            numbers.pop();
+
+            _f = operators.top();
+            operators.pop();
+
+            left = _f(left, right);
+        }
+
+        cout << left << endl;
     }
 
     return 0;
