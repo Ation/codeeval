@@ -159,7 +159,7 @@ int main(int argc, char *argv[]) {
             words_to_check.pop_front();
         }
 
-        cout << counter.getFriendsCount() << endl;
+        cout << counter.getFriendsCount() + 1 << endl;
     }
 
     return 0;
