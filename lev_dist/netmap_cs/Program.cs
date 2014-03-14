@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 // Current solution is not working because networks are not merging when word is added
 // so to make it work node should search for all existing networks that are welcome for this
@@ -258,7 +257,7 @@ namespace tree_cs
     {
         static int Main(string[] args)
         {
-            if (args.Count() != 1)
+            if (args.Length != 1)
             {
                 return 1;
             }
@@ -289,7 +288,6 @@ namespace tree_cs
                     networkMap.AddWord(line);
                 }
             }
-
 
             foreach (string testCase in testCases)
             {
