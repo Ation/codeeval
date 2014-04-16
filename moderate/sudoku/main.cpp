@@ -44,6 +44,8 @@ bool isCorrectSudoku(const string &line) {
                 break;
             }
 
+            digit--;
+
             int subgridIndex = (i/subgridSize) * subgridSize + ( j / subgridSize);
 
             if (horizontal_mask[j] & position_mask[digit]) {
