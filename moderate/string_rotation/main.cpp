@@ -7,53 +7,42 @@
 
 using namespace std;
 
-int getIndex(char symbol) {
-    if (symbol >= 'a' && symbol <= 'z') {
-        return symbol - 'a';
-    } else if (symbol >= 'A' && symbol <= 'Z') {
-        return symbol - 'A' + 26;
-    } else if (symbol >= '0' && symbol <= '9') {
-        return symbol + 52 - '0';
-    } else if (symbol == ' ') {
-        return 62;
-    } else {
-        return -1;
+bool compareString(const string &line, size_t secondStart, size_t compareStart) {
+    bool result = true;
+    size_t i;
+    for (i=0; i < line.length() - compareStart; i++) {
+        if (line[i] != line[i + compareStart]) {
+            result = false;
+            break;
+        }
     }
+
+    if (result) {
+        for (size_t j=secondStart; j < compareStart; i++, j++) {
+            if (line[i] != line[j]) {
+                result = false;
+                break;
+            }
+        }
+    }
+
+    return result;
 }
 
 bool containRotation(const string &line) {
-    const size_t  size = 63;
-    int counter[size];
-    char symbol;
-    int index;
-    bool result = true;
-    memset(counter, 0, sizeof(int) * size);
+    size_t comaPosition = 0;
+    char firstSymbol = line[0];
 
-    size_t i=0;
-    for (i=0; i < line.length(); i++) {
-        symbol = line[i];
+    bool result = false;
 
-        index = getIndex(symbol);
-        if (index == -1) {
-            i++;
-            break;
-        }
-        counter[index]++;
+    for (comaPosition = 0; comaPosition < line.length() && line[comaPosition] != ','; comaPosition++) {
     }
 
-    if (line.length() - i != i - 1) {
-        result = false;
-    } else  for (; i < line.length(); i++) {
-        symbol = line[i];
+    size_t  secondStart = comaPosition + 1;
 
-        index = getIndex(symbol);
-        if (index == -1) {
-            i++;
-            break;
-        }
-        counter[index]--;
-        if (counter[index] < 0) {
-            result = false;
+    for (size_t i = secondStart; i < line.length(); i++) {
+        if ( compareString(line, secondStart, i) ) {
+            result = true;
             break;
         }
     }
