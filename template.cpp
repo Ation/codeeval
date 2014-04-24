@@ -7,6 +7,30 @@
 
 using namespace std;
 
+class Printer {
+private:
+    typedef void (Printer::*printerFunction)(/*parameters*/);
+
+public:
+    Printer() : m_printer(&Printer::firstPrinter) {
+    }
+
+    void print(/* parameters*/) {
+        (this->*m_printer)(/*parameters*/);
+    }
+private:
+    printerFunction m_printer;
+
+    void firstPrinter(/* parameters*/) {
+        m_printer = &Printer::nextPrinter;
+        // print
+    }
+
+    void nextPrinter(/* parameters*/) {
+        // print
+    }
+};
+
 unsigned int getUnsignedInteger(const string &line, size_t &position) {
     int result = 0;
     char temp;
