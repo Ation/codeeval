@@ -23,6 +23,33 @@ unsigned int getUnsignedInteger(const string &line, size_t &position) {
     return result;
 }
 
+int getInteger(const string &line, size_t &position) {
+    int result = 0;
+    bool negative = false;
+    char temp;
+
+    if (line[position] == '-') {
+        negative = true;
+        position++;
+    }
+
+    for (; position < line.length(); position++) {
+        temp = line[position];
+        if (temp >= '0' && temp <= '9') {
+            result = result * 10 + (temp - '0');
+        } else {
+            position++;
+            break;
+        }
+    }
+
+    if (negative) {
+        result = -result;
+    }
+
+    return result;
+}
+
 int main(int argc, char *argv[]) {
     if (argc != 2) {
         return 0;
