@@ -66,9 +66,9 @@ public:
         unsigned int rightScore = right.getTopScore();
 
         if (myScore < rightScore) {
-            return I_LOSE;
+            return CompareResult::I_LOSE;
         } else if (myScore > rightScore) {
-            return I_WIN;
+            return CompareResult::I_WIN;
         } else {
             return TIE;
         }
@@ -92,12 +92,20 @@ private:
         FourCombo,
         StraightFlushCombo,
         RoyalFlushCombo
-    }
+    };
 
-    char m_suits[4];
     char m_cards[16];
+    char m_suits[4];
+    bool m_flash;
+    bool m_straight;
 
-    unsigned int getTopScore() {
+    int  m_pairCount;
+    int  m_kicker;
+    int  m_pair;
+    int  m_three;
+    int  m_four;
+
+    unsigned int getTopScore() const {
         short   comboCode = 0;
         short   cardCode = 0;
 
@@ -213,10 +221,10 @@ void printUpperHand(const string &line) {
 
     auto compare = leftHand.compareTo(rightHand);
     switch (compare) {
-    case I_WIN:
+    case Hand::I_WIN:
         cout << "left" << endl;
         break;
-    case I_LOSE:
+    case Hand::I_LOSE:
         cout << "right" << endl;
         break;
     default:
@@ -226,6 +234,12 @@ void printUpperHand(const string &line) {
 }
 
 int main(int argc, char *argv[]) {
+    printUpperHand("6D 7H AH 7S QC 6H 2D TD JD AS");
+    printUpperHand("JH 5D 7H TC JS JD JC TS 5S 7S");
+    printUpperHand("2H 8C AD TH 6H QD KD 9H 6S 6C");
+    printUpperHand("JS JH 4H 2C 9H QH KC 9D 4D 3S");
+    printUpperHand("TC 7H KH 4H JC 7D 9S 3H QS 7S");
+
     if (argc != 2) {
         return 0;
     }
@@ -238,7 +252,7 @@ int main(int argc, char *argv[]) {
     }
 
     while ( getline(inFile, inputLine)) {
-
+        printUpperHand(inputLine);
     }
 
     return 0;
