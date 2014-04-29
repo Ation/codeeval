@@ -64,7 +64,7 @@ public:
         }
     }
 
-    CompareResult compareTo(const Hand& right) {
+    CompareResult compareTo(Hand& right) {
         unsigned int myScore = getTopScore();
         unsigned int rightScore = right.getTopScore();
 
@@ -73,6 +73,12 @@ public:
         } else if (myScore > rightScore) {
             return CompareResult::I_WIN;
         } else {
+            if (m_kicker < right.m_kicker) {
+                return I_LOSE;
+            } else if (m_kicker > right.m_kicker) {
+                return I_WIN;
+            }
+
             return TIE;
         }
     }
@@ -108,7 +114,7 @@ private:
     int  m_three;
     int  m_four;
 
-    unsigned int getTopScore() const {
+    unsigned int getTopScore() {
         short   comboCode = 0;
         short   cardCode = 0;
 
@@ -152,6 +158,7 @@ private:
                 cardCode = m_three;
                 if (m_pairCount != 0) {
                     comboCode = FullHauseCombo;
+                    m_kicker = m_pair;
                 } else {
                     comboCode = ThreeCombo;
                 }
