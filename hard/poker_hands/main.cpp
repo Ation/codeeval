@@ -35,6 +35,9 @@ public:
         int valueIndex;
         int suitIndex;
 
+		valueIndex = getValueIndex(value);
+		suitIndex = getSuitIndex(suit);
+
         m_suits[suitIndex]++;
         if (m_suits[suitIndex] == 5) {
             m_flash = true;
@@ -183,6 +186,8 @@ private:
             return 11;
         case 'A':
             return 12;
+		default:
+			return -1;
         }
     }
 
@@ -196,6 +201,8 @@ private:
             return 2;
         case 'S':
             return 3;
+		default:
+			return -1;
         }
     }
 };
@@ -234,12 +241,6 @@ void printUpperHand(const string &line) {
 }
 
 int main(int argc, char *argv[]) {
-    printUpperHand("6D 7H AH 7S QC 6H 2D TD JD AS");
-    printUpperHand("JH 5D 7H TC JS JD JC TS 5S 7S");
-    printUpperHand("2H 8C AD TH 6H QD KD 9H 6S 6C");
-    printUpperHand("JS JH 4H 2C 9H QH KC 9D 4D 3S");
-    printUpperHand("TC 7H KH 4H JC 7D 9S 3H QS 7S");
-
     if (argc != 2) {
         return 0;
     }
