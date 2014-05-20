@@ -32,7 +32,7 @@ private:
 };
 
 unsigned int getUnsignedInteger(const string &line, size_t &position) {
-    int result = 0;
+    unsigned int result = 0;
     char temp;
     for (; position < line.length(); position++) {
         temp = line[position];
@@ -45,6 +45,35 @@ unsigned int getUnsignedInteger(const string &line, size_t &position) {
     }
 
     return result;
+}
+
+bool getUnsignedInteger(const string &line, size_t &position, unsigned int &number) {
+    unsigned int result = 0;
+    char temp;
+
+    for (; position < line.length(); position++) {
+        temp = line[position];
+        if (temp >= '0' && temp <= '9') {
+            break;
+        }
+    }
+
+    if (position >= line.length()) {
+        return false;
+    }
+
+    for (; position < line.length(); position++) {
+        temp = line[position];
+        if (temp >= '0' && temp <= '9') {
+            result = result * 10 + (temp - '0');
+        } else {
+            position ++;
+            break;
+        }
+    }
+
+    number = result;
+    return true;
 }
 
 int getInteger(const string &line, size_t &position) {
