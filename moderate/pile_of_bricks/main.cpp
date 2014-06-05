@@ -4,6 +4,7 @@
 #include <vector>
 #include <stdio.h>
 #include <string.h>
+#include <algorithm>
 
 using namespace std;
 
@@ -13,6 +14,10 @@ private:
 
 public:
     Printer() : m_printer(&Printer::firstPrinter) {
+    }
+
+    void reset() {
+        m_printer = &Printer::firstPrinter;
     }
 
     void print(int value) {
@@ -190,25 +195,46 @@ Hole readHole(const string &line, size_t &position) {
     return Hole(x1,y1);
 }
 
-void processBricks(const string &line) {
+
+class BricksPrinter {
+public:
+    BricksPrinter() {}
+
+    void reset() {
+        m_printer.reset();
+        m_bricks.clear();
+    }
+
+    void addBrick(int index) {
+        m_bricks.push_back(index);
+    }
+
+    void print() {
+        if (m_bricks.empty()) {
+            cout << '-' << endl;
+        } else {
+            sort(m_bricks.begin(), m_bricks.end());
+            for(auto&& index : m_bricks) {
+                m_printer.print(index);
+            }
+            cout << endl;
+        }
+    }
+private:
+    Printer m_printer;
+    vector<int> m_bricks;
+};
+
+void processBricks(const string &line, BricksPrinter &printer) {
     size_t position = 0;
-    Printer p;
-    bool    printed = false;
 
     Hole hole = readHole(line, position);
     Brick   brick;
 
     while (brick.setSize(line, position)) {
         if (brick.couldPassThrough(hole)) {
-            p.print(brick.getIndex());
-            printed = true;
+            printer.addBrick(brick.getIndex());
         }
-    }
-
-    if (!printed) {
-        cout << '-' << endl;
-    } else {
-        cout << endl;
     }
 }
 
@@ -224,8 +250,12 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    BricksPrinter bp;
+
     while ( getline(inFile, inputLine)) {
-        processBricks(inputLine);
+        processBricks(inputLine, bp);
+        bp.print();
+        bp.reset();
     }
 
     return 0;
