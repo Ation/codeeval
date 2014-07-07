@@ -34,6 +34,17 @@ static const string special[] = {"Ten", "Eleven", "Twelve", "Thirteen", "Fourtee
 static const string decades[] = {"Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"};
 
 void printAmount(unsigned int value) {
+    if (value >= 100) {
+        unsigned int hudreds = value / 100;
+        cout << digits[hudreds - 1];
+        cout << hundred;
+        value %= 100;
+    }
+
+    if (value == 0) {
+        return;
+    }
+
     if (value < 10) {
         cout << digits[value - 1];
     } else if (value >= 20) {
@@ -63,12 +74,6 @@ void printDollars(const string &line) {
         printAmount(value / 1000);
         value %= 1000;
         cout << thousand;
-    }
-
-    if (value > 100) {
-        printAmount(value / 100);
-        value %= 100;
-        cout << hundred;
     }
 
     printAmount(value);
