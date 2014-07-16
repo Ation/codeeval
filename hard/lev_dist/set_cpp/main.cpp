@@ -3,6 +3,7 @@
 #include <string>
 #include <list>
 #include <unordered_set>
+#include <unordered_map>
 #include <vector>
 
 using namespace std;
@@ -45,9 +46,16 @@ public:
     VocabularyContainer(const VocabularyContainer&) = delete;
 
     void insert(const string &word) {
-        unordered_set< string> &_c = getContainer(word.length());
+        if (word.length() <= _word_max_length) {
+            m_words.insert(word);
+        } else {
+            string prefix;
+            string left;
 
-        _c.insert(word);
+            split(word, prefix, left);
+
+            m_vocabulary[prefix].insert(left);
+        }
     }
 
     bool end() const {
@@ -55,20 +63,33 @@ public:
     }
 
     bool find(const string &word) {
-        unordered_set< string> &_c = getContainer(word.length());
+        if (word.length() <= _word_max_length) {
+            return m_words.find(word) != m_words.end();
+        } else {
+            string prefix;
+            string left;
 
-        return _c.find(word) != _c.end();
+            split(word, prefix, left);
+
+            auto _c = m_vocabulary.find(prefix);
+            if (_c != m_vocabulary.end()) {
+                return _c->second.find(left) != _c->second.end();
+            }
+            return false;
+        }
     }
 private:
-    vector< unordered_set< string> > m_vocabulary;
+    const unsigned int _prefix_length = 1;
+    const unsigned int _word_max_length = 2;
 
-    unordered_set< string>& getContainer(unsigned int length) {
-        while (m_vocabulary.size() < length - 1) {
-            m_vocabulary.emplace_back( );
-        }
+    unordered_set < string > m_words;
+    unordered_map < string, unordered_set < string > > m_vocabulary;
 
-        return m_vocabulary[length - 2];
+    void split(const string &word, string &prefix, string &left) {
+        prefix = word.substr(0, _prefix_length);
+        left = word.substr(_prefix_length);
     }
+
 };
 
 int main(int argc, char *argv[]) {
