@@ -6,9 +6,10 @@
 
 using namespace std;
 
+template<class _Voc = unordered_set<string> >
 class FriendsCounter {
 public:
-    FriendsCounter(unordered_set<string>& _vocabulary, const string word) : m_count(0), m_vocabulary(_vocabulary) {
+    FriendsCounter(_Voc& _vocabulary, const string word) : m_count(0), m_vocabulary(_vocabulary) {
         m_usedWords.insert(word);
     }
 
@@ -33,7 +34,7 @@ public:
 
 private:
     int                     m_count;
-    unordered_set<string>&  m_vocabulary;
+    _Voc&                   m_vocabulary;
     unordered_set<string>   m_usedWords;
 };
 
@@ -70,7 +71,7 @@ int main(int argc, char *argv[]) {
 
     for(auto&& test_case : test_cases) {
         list<string>            words_to_check;
-        FriendsCounter          counter(vocabulary, test_case);
+        FriendsCounter< unordered_set<string> >          counter(vocabulary, test_case);
 
         words_to_check.push_back(test_case);
         string check_this;
