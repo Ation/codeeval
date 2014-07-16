@@ -5,6 +5,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <vector>
+#include <cstring>
 
 using namespace std;
 
@@ -111,10 +112,6 @@ public:
     }
 
     inline size_t operator() (const char* str) const {
-        if (m_length == 0) {
-            cout << "CharHasher default!" << endl;
-        }
-
 #if defined(_M_X64) || defined(_LP64) || defined(__x86_64) || defined(_WIN64)
         const size_t _FNV_offset_basis = 14695981039346656037ULL;
         const size_t _FNV_prime = 1099511628211ULL;
@@ -153,9 +150,6 @@ public:
     }
 
     bool operator() (const char *str1, const char* str2) const {
-        if (m_length == 0) {
-            cout << "CharCompare default!" << endl;
-        }
         for (size_t i=0; i < m_length; ++i) {
             if (str1[i] != str2[i]) {
                 return false;
@@ -195,13 +189,13 @@ public:
 
         return _c.find(str) != _c.end();
     }
-
 private:
     vector < unordered_set< char*, CharHasher, CharCompare> > m_vocabulary;
 
     unordered_set< char*, CharHasher, CharCompare>& getContainer(unsigned int length) {
         while (m_vocabulary.size() < length - 1) {
-            m_vocabulary.emplace_back(10, CharHasher(length), CharCompare(length) );
+			unsigned int compare_length = m_vocabulary.size() + 2;
+			m_vocabulary.emplace_back(10, CharHasher(compare_length), CharCompare(compare_length));
         }
 
         return m_vocabulary[length - 2];
@@ -213,15 +207,13 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    vector < int> results = {6, 3, 1, 3, 5, 3, 7, 1, 5, 4, 4, 3, 3, 2, 3, 3, 2, 4, 3, 3 };
-
     string inputLine;
     ifstream inFile(argv[1]);
 
     const string marker = "END OF INPUT";
 
     CharVocabulary       vocabulary;
-    list<string>                test_cases;
+    list<string>         test_cases;
 
     if ( ! inFile.is_open() ) {
         return 1;
@@ -241,7 +233,6 @@ int main(int argc, char *argv[]) {
         vocabulary.insert(inputLine);
     }
 
-    int ir = 0;
     for(auto&& test_case : test_cases) {
         list<string>            words_to_check;
         FriendsCounter< CharVocabulary >          counter(vocabulary, test_case);
@@ -333,10 +324,6 @@ int main(int argc, char *argv[]) {
             words_to_check.pop_front();
         }
 
-        if (counter.getFriendsCount() + 1 != results[ir]) {
-            cout << "Failed (" << results[ir] << ") "<< endl;
-        }
-        ir++;
         cout << counter.getFriendsCount() + 1 <<endl;
     }
 
