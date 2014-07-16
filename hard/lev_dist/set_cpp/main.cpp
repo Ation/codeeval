@@ -46,7 +46,7 @@ public:
     VocabularyContainer(const VocabularyContainer&) = delete;
 
     void insert(const string &word) {
-        if (word.length() <= _word_max_length) {
+        if (word.length() <= _prefix_length) {
             m_words.insert(word);
         } else {
             string prefix;
@@ -63,7 +63,7 @@ public:
     }
 
     bool find(const string &word) {
-        if (word.length() <= _word_max_length) {
+        if (word.length() <= _prefix_length) {
             return m_words.find(word) != m_words.end();
         } else {
             string prefix;
@@ -78,9 +78,16 @@ public:
             return false;
         }
     }
+
+    unsigned int getWordsCount() const {
+        return m_words.size();
+    }
+
+    unsigned int getPrefixCount() const {
+        return m_vocabulary.size();
+    }
 private:
-    const unsigned int _prefix_length = 1;
-    const unsigned int _word_max_length = 2;
+    const unsigned int _prefix_length = 3;
 
     unordered_set < string > m_words;
     unordered_map < string, unordered_set < string > > m_vocabulary;
@@ -122,6 +129,9 @@ int main(int argc, char *argv[]) {
     while ( getline(inFile, inputLine)) {
         vocabulary.insert(inputLine);
     }
+
+    cout << "Words: " << vocabulary.getWordsCount() << endl;
+    cout << "Prefix: " << vocabulary.getPrefixCount() << endl;
 
     for(auto&& test_case : test_cases) {
         list<string>            words_to_check;

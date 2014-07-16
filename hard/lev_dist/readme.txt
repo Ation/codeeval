@@ -15,3 +15,4 @@ Results:
     separate sets for different lenght did not work out (not memory/speed improvements)
 
     try with prefix reduction in unordered set no improvements
+        increasing prefix size leads to increasing total memory consumption
