@@ -5,6 +5,8 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <vector>
+#include <set>
+#include <map>
 
 using namespace std;
 
@@ -89,8 +91,8 @@ public:
 private:
     const unsigned int _prefix_length = 3;
 
-    unordered_set < string > m_words;
-    unordered_map < string, unordered_set < string > > m_vocabulary;
+    set < string > m_words;
+    map < string, set < string > > m_vocabulary;
 
     void split(const string &word, string &prefix, string &left) {
         prefix = word.substr(0, _prefix_length);
@@ -129,9 +131,6 @@ int main(int argc, char *argv[]) {
     while ( getline(inFile, inputLine)) {
         vocabulary.insert(inputLine);
     }
-
-    cout << "Words: " << vocabulary.getWordsCount() << endl;
-    cout << "Prefix: " << vocabulary.getPrefixCount() << endl;
 
     for(auto&& test_case : test_cases) {
         list<string>            words_to_check;

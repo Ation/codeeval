@@ -16,3 +16,5 @@ Results:
 
     try with prefix reduction in unordered set no improvements
         increasing prefix size leads to increasing total memory consumption
+
+    switching to set/map from unordered did not improve memory and did increase total memory
