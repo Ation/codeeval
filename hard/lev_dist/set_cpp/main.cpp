@@ -3,6 +3,7 @@
 #include <string>
 #include <list>
 #include <unordered_set>
+#include <vector>
 
 using namespace std;
 
@@ -38,6 +39,38 @@ private:
     unordered_set<string>   m_usedWords;
 };
 
+class VocabularyContainer {
+public:
+    VocabularyContainer() {}
+    VocabularyContainer(const VocabularyContainer&) = delete;
+
+    void insert(const string &word) {
+        unordered_set< string> &_c = getContainer(word.length());
+
+        _c.insert(word);
+    }
+
+    bool end() const {
+        return false;
+    }
+
+    bool find(const string &word) {
+        unordered_set< string> &_c = getContainer(word.length());
+
+        return _c.find(word) != _c.end();
+    }
+private:
+    vector< unordered_set< string> > m_vocabulary;
+
+    unordered_set< string>& getContainer(unsigned int length) {
+        while (m_vocabulary.size() < length - 1) {
+            m_vocabulary.emplace_back( );
+        }
+
+        return m_vocabulary[length - 2];
+    }
+};
+
 int main(int argc, char *argv[]) {
     if (argc != 2) {
         return 0;
@@ -48,7 +81,7 @@ int main(int argc, char *argv[]) {
 
     const string marker = "END OF INPUT";
 
-    unordered_set<string>       vocabulary;
+    VocabularyContainer       vocabulary;
     list<string>                test_cases;
 
     if ( ! inFile.is_open() ) {
@@ -71,7 +104,7 @@ int main(int argc, char *argv[]) {
 
     for(auto&& test_case : test_cases) {
         list<string>            words_to_check;
-        FriendsCounter< unordered_set<string> >          counter(vocabulary, test_case);
+        FriendsCounter< VocabularyContainer >          counter(vocabulary, test_case);
 
         words_to_check.push_back(test_case);
         string check_this;

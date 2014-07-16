@@ -7,3 +7,9 @@ TODO:
             use char* instead of string without zero symbol
             use prefix for words
         test with "prefix tree"
+
+        time
+            there could be some duplicates in test cases
+
+Results:
+    separate sets for different lenght did not work out (not memory/speed improvements)
