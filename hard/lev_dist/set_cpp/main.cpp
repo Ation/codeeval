@@ -99,17 +99,128 @@ private:
 
 };
 
+class CharHasher {
+public:
+    explicit CharHasher(size_t length) : m_length(length) {
+    }
+
+    CharHasher(): m_length(0) {
+    }
+
+    CharHasher(const CharHasher& src) : m_length(src.m_length) {
+    }
+
+    inline size_t operator() (const char* str) const {
+        if (m_length == 0) {
+            cout << "CharHasher default!" << endl;
+        }
+
+#if defined(_M_X64) || defined(_LP64) || defined(__x86_64) || defined(_WIN64)
+        const size_t _FNV_offset_basis = 14695981039346656037ULL;
+        const size_t _FNV_prime = 1099511628211ULL;
+
+ #else /* defined(_M_X64), etc. */
+        const size_t _FNV_offset_basis = 2166136261U;
+        const size_t _FNV_prime = 16777619U;
+ #endif /* defined(_M_X64), etc. */
+
+        size_t _Val = _FNV_offset_basis;
+        for (size_t _Next = 0; _Next < m_length; ++_Next) {
+           // fold in another byte
+            _Val ^= (size_t)str[_Next];
+            _Val *= _FNV_prime;
+        }
+
+ #if defined(_M_X64) || defined(_LP64) || defined(__x86_64) || defined(_WIN64)
+        _Val ^= _Val >> 32;
+ #endif /* defined(_M_X64), etc. */
+
+        return (_Val);
+    }
+private:
+    size_t m_length;
+};
+
+class CharCompare {
+public:
+    explicit CharCompare(size_t length) : m_length(length) {
+    }
+
+    CharCompare(): m_length(0) {
+    }
+
+    CharCompare(const CharCompare& src) : m_length(src.m_length) {
+    }
+
+    bool operator() (const char *str1, const char* str2) const {
+        if (m_length == 0) {
+            cout << "CharCompare default!" << endl;
+        }
+        for (size_t i=0; i < m_length; ++i) {
+            if (str1[i] != str2[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+private:
+    size_t m_length;
+};
+
+class CharVocabulary {
+public:
+    CharVocabulary() {}
+    CharVocabulary(const CharVocabulary&) = delete;
+
+    void insert(const string &word) {
+        unsigned int length = word.length();
+
+        auto &_c = getContainer(length);
+        char *tmp = new char[length];
+        memcpy(tmp, word.c_str(), length);
+
+        _c.insert(tmp);
+    }
+
+    bool end() const {
+        return false;
+    }
+
+    bool find(const string &word) {
+        unsigned int length = word.length();
+
+		unordered_set< char*, CharHasher, CharCompare> &_c = getContainer(length);
+
+		char *str = const_cast<char*>(word.c_str());
+
+        return _c.find(str) != _c.end();
+    }
+
+private:
+    vector < unordered_set< char*, CharHasher, CharCompare> > m_vocabulary;
+
+    unordered_set< char*, CharHasher, CharCompare>& getContainer(unsigned int length) {
+        while (m_vocabulary.size() < length - 1) {
+            m_vocabulary.emplace_back(10, CharHasher(length), CharCompare(length) );
+        }
+
+        return m_vocabulary[length - 2];
+    }
+};
+
 int main(int argc, char *argv[]) {
     if (argc != 2) {
         return 0;
     }
+
+    vector < int> results = {6, 3, 1, 3, 5, 3, 7, 1, 5, 4, 4, 3, 3, 2, 3, 3, 2, 4, 3, 3 };
 
     string inputLine;
     ifstream inFile(argv[1]);
 
     const string marker = "END OF INPUT";
 
-    VocabularyContainer       vocabulary;
+    CharVocabulary       vocabulary;
     list<string>                test_cases;
 
     if ( ! inFile.is_open() ) {
@@ -130,9 +241,10 @@ int main(int argc, char *argv[]) {
         vocabulary.insert(inputLine);
     }
 
+    int ir = 0;
     for(auto&& test_case : test_cases) {
         list<string>            words_to_check;
-        FriendsCounter< VocabularyContainer >          counter(vocabulary, test_case);
+        FriendsCounter< CharVocabulary >          counter(vocabulary, test_case);
 
         words_to_check.push_back(test_case);
         string check_this;
@@ -221,7 +333,11 @@ int main(int argc, char *argv[]) {
             words_to_check.pop_front();
         }
 
-        cout << counter.getFriendsCount() + 1 << endl;
+        if (counter.getFriendsCount() + 1 != results[ir]) {
+            cout << "Failed (" << results[ir] << ") "<< endl;
+        }
+        ir++;
+        cout << counter.getFriendsCount() + 1 <<endl;
     }
 
     return 0;
