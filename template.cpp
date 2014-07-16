@@ -31,6 +31,59 @@ private:
     }
 };
 
+bool getDouble(const string &line, size_t &position, double &number) {
+    bool negative = false;
+    double result = 0;
+    char symbol;
+    // find start
+    for (; position < line.length(); position++ ) {
+        symbol = line[position];
+        if (symbol == '-') {
+            negative = true;
+            position++;
+            break;
+        }
+        if (symbol >= '0' && symbol <= '9') {
+            break;
+        }
+    }
+
+    if (position == line.length()) {
+        return false;
+    }
+
+    for (; position < line.length(); position++) {
+        symbol = line[position];
+        if (symbol == '.') {
+            int devider = 10;
+
+            // after dot
+            position++;
+            for (; position < line.length(); position++) {
+                symbol = line[position];
+                if (symbol >= '0' && symbol <= '9') {
+                    result = result + ((double)(symbol - '0')) / devider;
+                    devider *= 10;
+                } else {
+                    break;
+                }
+            }
+            break;
+        } else if (symbol >= '0' && symbol <= '9') {
+            result = result * 10 + (symbol - '0');
+        } else {
+            break;
+        }
+    }
+
+    if (negative) {
+        result = -result;
+    }
+
+    number = result;
+    return true;
+}
+
 unsigned int getUnsignedInteger(const string &line, size_t &position) {
     unsigned int result = 0;
     char temp;
