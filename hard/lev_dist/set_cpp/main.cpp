@@ -215,6 +215,8 @@ int main(int argc, char *argv[]) {
     CharVocabulary       vocabulary;
     list<string>         test_cases;
 
+    unordered_map< string, unsigned int> passed;
+
     if ( ! inFile.is_open() ) {
         return 1;
     }
@@ -233,7 +235,13 @@ int main(int argc, char *argv[]) {
         vocabulary.insert(inputLine);
     }
 
-    for(auto&& test_case : test_cases) {
+    for(auto& test_case : test_cases) {
+        auto was_processed = passed.find(test_case);
+        if (was_processed != passed.end()) {
+            cout << was_processed->second << endl;
+            continue;
+        }
+
         list<string>            words_to_check;
         FriendsCounter< CharVocabulary >          counter(vocabulary, test_case);
 
@@ -293,7 +301,7 @@ int main(int argc, char *argv[]) {
                 }
             }
 
-            for (int i=1; i < check_this.length() - 1; ++i) {
+            for (unsigned int i=1; i < check_this.length() - 1; ++i) {
                 string left = word.substr(0, i);
                 string right = word.substr(i, check_this.length() - i);
 
@@ -325,6 +333,7 @@ int main(int argc, char *argv[]) {
         }
 
         cout << counter.getFriendsCount() + 1 <<endl;
+        passed.emplace(test_case, counter.getFriendsCount() + 1);
     }
 
     return 0;
