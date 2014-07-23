@@ -238,7 +238,7 @@ private:
             }
 
             if (m_data[i] < 0) {
-                left = -1;
+                left = 1;
                 m_data[i] += Limit;
             } else {
                 left = 0;
@@ -257,48 +257,21 @@ pair< T, T> getFibMult(unsigned int index) {
     } else {
         auto fibs = getFibMult<T>(index >> 1);
 
+        auto c = fibs.first * (fibs.second * 2 - fibs.first);
         auto d = fibs.second * fibs.second + fibs.first * fibs.first;
 
         if (index % 2 == 0) {
-            auto first = fibs.first * (fibs.second * 2 - fibs.first);
-            return pair< T, T>(first, d);
+            return pair< T, T>(c, d);
         } else {
-            auto second = fibs.second * (fibs.second + fibs.first * 2);
-            return pair< T, T>(d, second);
+            return pair< T, T>(d, c + d);
         }
     }
 }
 
 template< class T>
 T getBigFibonacci(unsigned int index) {
-    return getFibMult<T>(index).first;
-}
-
-unsigned long long getFibonacci(unsigned int index) {
-    unsigned long long number = 0;
-
-    unsigned long long left;
-    unsigned long long right;
-
-    if (index == 0) {
-        return 0;
-    }
-
-    if (index < 3) {
-        return 1;
-    }
-
-    left = 1;
-    right = 1;
-    number = 2;
-
-    for (unsigned int i=2; i < index; i++) {
-        number = left + right;
-        left = right;
-        right = number;
-    }
-
-    return number;
+    auto result = getFibMult<T>(index);
+	return result.first;
 }
 
 void printCombinations(const string &line) {
