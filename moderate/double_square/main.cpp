@@ -22,18 +22,28 @@ unsigned int getSquareCount(const string &line) {
     unsigned int count = 0;
 
     const unsigned int sum = getInteger(line);
+    if (sum <= 2) {
+        return 1;
+    }
 
-    unsigned int limit = sqrt(sum) + 1;
+    unsigned int y = (unsigned int)(sqrt(sum) + 1);
+    unsigned int yy = y * y;
 
-    for (unsigned int x=0; x < limit; x++) {
-        double y = sqrt(sum - x*x);
+    unsigned int x = 0;
+    unsigned int current;
 
-        if (y < x) {
-            break;
-        }
-
-        if (y == (int)y) {
+    while (x < y) {
+        current = x * x + yy;
+        if (current == sum) {
+            ++x;
+            --y;
+            yy = y * y;
             count++;
+        } else if (current > sum) {
+            --y;
+            yy = y * y;
+        } else {
+            ++x;
         }
     }
 
@@ -50,6 +60,14 @@ int main(int argc, char *argv[]) {
 
     if ( ! inFile.is_open() ) {
         return 1;
+    }
+
+    getline(inFile, inputLine);
+    int test_cases = getInteger(inputLine);
+
+    for (int i=0; i < test_cases; ++i) {
+        getline(inFile, inputLine);
+        cout << getSquareCount(inputLine) << endl;
     }
 
     while ( getline(inFile, inputLine)) {
