@@ -4,30 +4,34 @@
 #include <vector>
 #include <stdio.h>
 #include <string.h>
+#include <iomanip>
+#include <algorithm>
 
 using namespace std;
 
 class Printer {
 private:
-    typedef void (Printer::*printerFunction)(/*parameters*/);
+    typedef void (Printer::*printerFunction)(double number);
 
 public:
     Printer() : m_printer(&Printer::firstPrinter) {
     }
 
-    void print(/* parameters*/) {
-        (this->*m_printer)(/*parameters*/);
+    void print(double number) {
+        (this->*m_printer)(number);
     }
 private:
     printerFunction m_printer;
 
-    void firstPrinter(/* parameters*/) {
+    void firstPrinter(double number) {
         m_printer = &Printer::nextPrinter;
         // print
+        cout << number;
     }
 
-    void nextPrinter(/* parameters*/) {
+    void nextPrinter(double number) {
         // print
+        cout << ' ' << number;
     }
 };
 
@@ -84,79 +88,27 @@ bool getDouble(const string &line, size_t &position, double &number) {
     return true;
 }
 
-unsigned int getUnsignedInteger(const string &line, size_t &position) {
-    unsigned int result = 0;
-    char temp;
-    for (; position < line.length(); position++) {
-        temp = line[position];
-        if (temp >= '0' && temp <= '9') {
-            result = result * 10 + (temp - '0');
-        } else {
-            position ++;
-            break;
-        }
+void sortLine(const string &line) {
+    double number;
+    size_t position = 0;
+    vector<double> numbers;
+    Printer p;
+
+    while (getDouble(line, position, number)) {
+        numbers.push_back(number);
     }
 
-    return result;
-}
-
-bool getUnsignedInteger(const string &line, size_t &position, unsigned int &number) {
-    unsigned int result = 0;
-    char temp;
-
-    for (; position < line.length(); position++) {
-        temp = line[position];
-        if (temp >= '0' && temp <= '9') {
-            break;
-        }
+    sort(numbers.begin(), numbers.end());
+    for(auto&& n : numbers) {
+        p.print(n);
     }
 
-    if (position >= line.length()) {
-        return false;
-    }
-
-    for (; position < line.length(); position++) {
-        temp = line[position];
-        if (temp >= '0' && temp <= '9') {
-            result = result * 10 + (temp - '0');
-        } else {
-            position ++;
-            break;
-        }
-    }
-
-    number = result;
-    return true;
-}
-
-int getInteger(const string &line, size_t &position) {
-    int result = 0;
-    bool negative = false;
-    char temp;
-
-    if (line[position] == '-') {
-        negative = true;
-        position++;
-    }
-
-    for (; position < line.length(); position++) {
-        temp = line[position];
-        if (temp >= '0' && temp <= '9') {
-            result = result * 10 + (temp - '0');
-        } else {
-            position++;
-            break;
-        }
-    }
-
-    if (negative) {
-        result = -result;
-    }
-
-    return result;
+    cout << endl;
 }
 
 int main(int argc, char *argv[]) {
+    cout << fixed << setprecision(3);
+
     if (argc != 2) {
         return 0;
     }
@@ -169,7 +121,7 @@ int main(int argc, char *argv[]) {
     }
 
     while ( getline(inFile, inputLine)) {
-
+        sortLine(inputLine);
     }
 
     return 0;
