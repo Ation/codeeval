@@ -4,12 +4,13 @@
 #include <vector>
 #include <stdio.h>
 #include <string.h>
+#include <algorithm>
 
 using namespace std;
 
 class Printer {
 private:
-    typedef void (Printer::*printerFunction)(/*parameters*/);
+    typedef void (Printer::*printerFunction)(/* parameters*/);
 
 public:
     Printer() : m_printer(&Printer::firstPrinter) {
