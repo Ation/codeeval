@@ -8,27 +8,31 @@
 
 using namespace std;
 
+template< class _T >
 class Printer {
 private:
-    typedef void (Printer::*printerFunction)(/* parameters*/);
+    typedef _T value_type;
+    typedef void (Printer< value_type >::*printerFunction)(value_type value);
 
 public:
-    Printer() : m_printer(&Printer::firstPrinter) {
+    Printer() : m_printer(&Printer< value_type >::firstPrinter) {
     }
 
-    void print(/* parameters*/) {
-        (this->*m_printer)(/*parameters*/);
+    void print(value_type value) {
+        (this->*m_printer)( value );
     }
 private:
     printerFunction m_printer;
 
-    void firstPrinter(/* parameters*/) {
-        m_printer = &Printer::nextPrinter;
+    void firstPrinter(value_type value) {
+        m_printer = &Printer< value_type >::nextPrinter;
         // print
+        cout << value ;
     }
 
-    void nextPrinter(/* parameters*/) {
+    void nextPrinter(value_type value) {
         // print
+        cout << ' ' << value;
     }
 };
 
