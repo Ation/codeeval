@@ -3,12 +3,16 @@
 #include <string>
 #include <list>
 #include <unordered_set>
+#include <unordered_map>
+#include <vector>
+#include <cstring>
 
 using namespace std;
 
+template<class _Voc = unordered_set<string> >
 class FriendsCounter {
 public:
-    FriendsCounter(unordered_set<string>& _vocabulary, const string word) : m_count(0), m_vocabulary(_vocabulary) {
+    FriendsCounter(_Voc& _vocabulary, const string word) : m_count(0), m_vocabulary(_vocabulary) {
         m_usedWords.insert(word);
     }
 
@@ -33,8 +37,169 @@ public:
 
 private:
     int                     m_count;
-    unordered_set<string>&  m_vocabulary;
+    _Voc&                   m_vocabulary;
     unordered_set<string>   m_usedWords;
+};
+
+class VocabularyContainer {
+public:
+    VocabularyContainer() {}
+    VocabularyContainer(const VocabularyContainer&) = delete;
+
+    void insert(const string &word) {
+        if (word.length() <= _prefix_length) {
+            m_words.insert(word);
+        } else {
+            string prefix;
+            string left;
+
+            split(word, prefix, left);
+
+            m_vocabulary[prefix].insert(left);
+        }
+    }
+
+    bool end() const {
+        return false;
+    }
+
+    bool find(const string &word) {
+        if (word.length() <= _prefix_length) {
+            return m_words.find(word) != m_words.end();
+        } else {
+            string prefix;
+            string left;
+
+            split(word, prefix, left);
+
+            auto _c = m_vocabulary.find(prefix);
+            if (_c != m_vocabulary.end()) {
+                return _c->second.find(left) != _c->second.end();
+            }
+            return false;
+        }
+    }
+
+    unsigned int getWordsCount() const {
+        return m_words.size();
+    }
+
+    unsigned int getPrefixCount() const {
+        return m_vocabulary.size();
+    }
+private:
+    const unsigned int _prefix_length = 3;
+
+    unordered_set < string > m_words;
+    unordered_map < string, unordered_set < string > > m_vocabulary;
+
+    void split(const string &word, string &prefix, string &left) {
+        prefix = word.substr(0, _prefix_length);
+        left = word.substr(_prefix_length);
+    }
+
+};
+
+class CharHasher {
+public:
+    explicit CharHasher(size_t length) : m_length(length) {
+    }
+
+    CharHasher(): m_length(0) {
+    }
+
+    CharHasher(const CharHasher& src) : m_length(src.m_length) {
+    }
+
+    inline size_t operator() (const char* str) const {
+#if defined(_M_X64) || defined(_LP64) || defined(__x86_64) || defined(_WIN64)
+        const size_t _FNV_offset_basis = 14695981039346656037ULL;
+        const size_t _FNV_prime = 1099511628211ULL;
+
+ #else /* defined(_M_X64), etc. */
+        const size_t _FNV_offset_basis = 2166136261U;
+        const size_t _FNV_prime = 16777619U;
+ #endif /* defined(_M_X64), etc. */
+
+        size_t _Val = _FNV_offset_basis;
+        for (size_t _Next = 0; _Next < m_length; ++_Next) {
+           // fold in another byte
+            _Val ^= (size_t)str[_Next];
+            _Val *= _FNV_prime;
+        }
+
+ #if defined(_M_X64) || defined(_LP64) || defined(__x86_64) || defined(_WIN64)
+        _Val ^= _Val >> 32;
+ #endif /* defined(_M_X64), etc. */
+
+        return (_Val);
+    }
+private:
+    size_t m_length;
+};
+
+class CharCompare {
+public:
+    explicit CharCompare(size_t length) : m_length(length) {
+    }
+
+    CharCompare(): m_length(0) {
+    }
+
+    CharCompare(const CharCompare& src) : m_length(src.m_length) {
+    }
+
+    bool operator() (const char *str1, const char* str2) const {
+        for (size_t i=0; i < m_length; ++i) {
+            if (str1[i] != str2[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+private:
+    size_t m_length;
+};
+
+class CharVocabulary {
+public:
+    CharVocabulary() {}
+    CharVocabulary(const CharVocabulary&) = delete;
+
+    void insert(const string &word) {
+        unsigned int length = word.length();
+
+        auto &_c = getContainer(length);
+        char *tmp = new char[length];
+        memcpy(tmp, word.c_str(), length);
+
+        _c.insert(tmp);
+    }
+
+    bool end() const {
+        return false;
+    }
+
+    bool find(const string &word) {
+        unsigned int length = word.length();
+
+		unordered_set< char*, CharHasher, CharCompare> &_c = getContainer(length);
+
+		char *str = const_cast<char*>(word.c_str());
+
+        return _c.find(str) != _c.end();
+    }
+private:
+    vector < unordered_set< char*, CharHasher, CharCompare> > m_vocabulary;
+
+    unordered_set< char*, CharHasher, CharCompare>& getContainer(unsigned int length) {
+        while (m_vocabulary.size() < length - 1) {
+			unsigned int compare_length = m_vocabulary.size() + 2;
+			m_vocabulary.emplace_back(10, CharHasher(compare_length), CharCompare(compare_length));
+        }
+
+        return m_vocabulary[length - 2];
+    }
 };
 
 int main(int argc, char *argv[]) {
@@ -47,8 +212,10 @@ int main(int argc, char *argv[]) {
 
     const string marker = "END OF INPUT";
 
-    unordered_set<string>       vocabulary;
-    list<string>                test_cases;
+    CharVocabulary       vocabulary;
+    list<string>         test_cases;
+
+    unordered_map< string, unsigned int> passed;
 
     if ( ! inFile.is_open() ) {
         return 1;
@@ -68,9 +235,15 @@ int main(int argc, char *argv[]) {
         vocabulary.insert(inputLine);
     }
 
-    for(auto&& test_case : test_cases) {
+    for(auto& test_case : test_cases) {
+        auto was_processed = passed.find(test_case);
+        if (was_processed != passed.end()) {
+            cout << was_processed->second << endl;
+            continue;
+        }
+
         list<string>            words_to_check;
-        FriendsCounter          counter(vocabulary, test_case);
+        FriendsCounter< CharVocabulary >          counter(vocabulary, test_case);
 
         words_to_check.push_back(test_case);
         string check_this;
@@ -128,7 +301,7 @@ int main(int argc, char *argv[]) {
                 }
             }
 
-            for (int i=1; i < check_this.length() - 1; ++i) {
+            for (unsigned int i=1; i < check_this.length() - 1; ++i) {
                 string left = word.substr(0, i);
                 string right = word.substr(i, check_this.length() - i);
 
@@ -159,7 +332,8 @@ int main(int argc, char *argv[]) {
             words_to_check.pop_front();
         }
 
-        cout << counter.getFriendsCount() + 1 << endl;
+        cout << counter.getFriendsCount() + 1 <<endl;
+        passed.emplace(test_case, counter.getFriendsCount() + 1);
     }
 
     return 0;
