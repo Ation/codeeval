@@ -134,6 +134,54 @@ bool getUnsignedInteger(const string &line, size_t &position, unsigned int &numb
     return true;
 }
 
+
+bool getInteger(const string &line, size_t &position, int &number) {
+    int result = 0;
+    bool negative = false;
+    char temp;
+
+    for (; position < line.length(); ++position) {
+        temp = line[position];
+        if (temp == '-') {
+            negative = true;
+            position++;
+            break;
+        }
+        if (temp >= '0' && temp <= '9') {
+            break;
+        }
+    }
+
+    for (; position < line.length(); position++) {
+        temp = line[position];
+        if (temp >= '0' && temp <= '9') {
+            break;
+        }
+    }
+
+    if (position >= line.length()) {
+        return false;
+    }
+
+    for (; position < line.length(); position++) {
+        temp = line[position];
+        if (temp >= '0' && temp <= '9') {
+            result = result * 10 + (temp - '0');
+        } else {
+            position++;
+            break;
+        }
+    }
+
+    if (negative) {
+        result = -result;
+    }
+
+    number = result;
+
+    return true;
+}
+
 int getInteger(const string &line, size_t &position) {
     int result = 0;
     bool negative = false;
