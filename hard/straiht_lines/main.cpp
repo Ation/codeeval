@@ -65,6 +65,8 @@ public:
 
     Line(double x0, bool) : _any_x(false), _any_y(true), _x0(x0), _y0(0) {}
 
+    friend bool operator == (const Line& left, const Line &right);
+
     bool operator < (const Line& other) const {
         if (_any_x == other._any_x) {
             if (_x0 != other._x0) {
@@ -90,6 +92,14 @@ private:
 };
 
 
+bool operator == (const Line &left, const Line &right) {
+    return
+        left._any_y == right._any_y &&
+        left._any_x == right._any_x &&
+        left._x0 == right._x0 &&
+        left._y0 == right._y0;
+}
+
 class Point {
 public:
     Point(int x, int y) : _x(x), _y(y) {}
@@ -114,6 +124,9 @@ public:
 
     friend bool operator == ( const Point& left, const Point& right);
 
+    int get_x() const { return _x; }
+    int get_y() const { return _y; }
+
 private:
     const int _x;
     const int _y;
@@ -129,6 +142,48 @@ private:
 
 bool operator == ( const Point& left, const Point& right) {
     return left._x == right._x && left._y == right._y;
+}
+
+class LineFunction {
+public:
+    LineFunction(const Point &p1, const Point &p2)
+      : _any_x(false), _any_y(false), _x(0), _x_add(0) {
+        double dx = p2.get_x() - p1.get_x();
+        double dy = p2.get_y() - p1.get_y();
+
+        if (dx == 0) {
+            _any_y = true;
+            _x = p1.get_x();
+        } else if (dy == 0) {
+            _any_x = true;
+            _x_add = p1.get_y();
+        } else {
+            _x = dy / dx;
+            _x_add = p1.get_y() - p1.get_x() * _x;
+        }
+    }
+
+    bool point_on_line(const Point& p) {
+        double y = _x * p.get_x() + _x_add;
+        return y == p.get_y();
+    }
+
+    friend bool operator == ( const LineFunction& left, const LineFunction &right);
+
+private:
+    bool _any_x;
+    bool _any_y;
+
+    double _x;
+    double _x_add;
+};
+
+bool operator == ( const LineFunction& left, const LineFunction &right) {
+    return
+        left._any_x == left._any_x &&
+        left._any_y == left._any_y &&
+        left._x == left._x &&
+        left._x_add == left._x_add;
 }
 
 unsigned int count_lines(const string& line) {
@@ -173,6 +228,54 @@ unsigned int count_lines(const string& line) {
     return result;
 }
 
+unsigned int count_direct(const string& line) {
+    vector<Point> points;
+    size_t position = 0;
+
+    do {
+        int x;
+        int y;
+
+        if (!getInteger(line, position, x)) {
+            break;
+        }
+        if (!getInteger(line, position, y)) {
+            break;
+        }
+
+        points.emplace_back(x, y);
+    } while (true);
+
+    vector<LineFunction> lines;
+
+    for (unsigned int first = 0; first < points.size() - 2; first++) {
+        for (unsigned int second = first + 1; second < points.size() - 1; second++) {
+            LineFunction line_function(points[first], points[second]);
+
+            bool line_exists = false;
+            for ( auto &lines_item : lines) {
+                if (line_function == lines_item) {
+                    line_exists = true;
+                    break;
+                }
+            }
+
+            if (line_exists) {
+                continue;
+            }
+
+            for (unsigned int third = second + 1; third < points.size(); third++) {
+                if (line_function.point_on_line(points[third]) ) {
+                    lines.emplace_back( move(line_function));
+                    break;
+                }
+            }
+        }
+    }
+
+    return lines.size();
+}
+
 int main(int argc, char *argv[]) {
     if (argc != 2) {
         return 0;
@@ -186,7 +289,8 @@ int main(int argc, char *argv[]) {
     }
 
     while ( getline(inFile, inputLine)) {
-        cout << count_lines(inputLine) << endl;
+        // cout << count_lines(inputLine) << endl;
+        cout << count_direct(inputLine) << endl;
     }
 
     return 0;
