@@ -164,6 +164,12 @@ public:
     }
 
     bool point_on_line(const Point& p) {
+        if (_any_y) {
+            return p.get_x() == _x;
+        }
+        if (_any_x) {
+            return p.get_y() == _x_add;
+        }
         double y = _x * p.get_x() + _x_add;
         return y == p.get_y();
     }
@@ -180,10 +186,10 @@ private:
 
 bool operator == ( const LineFunction& left, const LineFunction &right) {
     return
-        left._any_x == left._any_x &&
-        left._any_y == left._any_y &&
-        left._x == left._x &&
-        left._x_add == left._x_add;
+        left._any_x == right._any_x &&
+        left._any_y == right._any_y &&
+        left._x == right._x &&
+        left._x_add == right._x_add;
 }
 
 unsigned int count_lines(const string& line) {
@@ -289,8 +295,7 @@ int main(int argc, char *argv[]) {
     }
 
     while ( getline(inFile, inputLine)) {
-        // cout << count_lines(inputLine) << endl;
-        cout << count_direct(inputLine) << endl;
+        cout << count_direct(inputLine)  << endl;
     }
 
     return 0;
