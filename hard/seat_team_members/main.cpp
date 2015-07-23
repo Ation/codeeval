@@ -33,7 +33,7 @@ public:
         unsigned int seats_count = getUnsignedInteger(line, position);
         position += 2;
 
-        _seats.assign(seats_count, false);
+        _seats.assign(seats_count, 0);
         _members_list.clear();
 
         vector<int> places;
@@ -60,7 +60,7 @@ public:
         return can_seat(0);
     }
 private:
-    vector<bool> _seats;
+    vector<int> _seats;
     vector< vector<int> > _members_list;
 
     bool can_seat(int member_index) {
@@ -70,11 +70,11 @@ private:
 
         for( auto it = _members_list[member_index].begin(); it != _members_list[member_index].end(); ++it) {
             if (!_seats[*it]) {
-                _seats[*it] = true;
+                _seats[*it] = 1;
                 if (can_seat(member_index+1)) {
                     return true;
                 }
-                _seats[*it] = false;
+                _seats[*it] = 0;
             }
         }
 
