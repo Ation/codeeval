@@ -33,7 +33,8 @@ using house_event = struct __house_event {
 
 void process_line(const string &line) {
     size_t position = 0;
-    unsigned int inside_count = 0;
+    int inside_count = 0;
+    int known_felons_inside_count = 0;
 
     vector<house_event> events;
 
@@ -49,14 +50,6 @@ void process_line(const string &line) {
         }
         position += 2;
         unsigned int id = getUnsignedInteger(line, position);
-
-        if (entered) {
-            inside_count++;
-        } else {
-            if (inside_count) {
-                inside_count--;
-            }
-        }
 
         if (id != 0) {
             for (int i = events.size() - 1; i >= 0; --i) {
@@ -81,7 +74,43 @@ void process_line(const string &line) {
         events.emplace_back( id, entered);
     }
 
-    cout << inside_count << endl;
+    for (int i=0; i < events.size(); i++) {
+        if (events[i].entered) {
+            if (events[i].felon_id == 0) {
+                inside_count++;
+            } else {
+                known_felons_inside_count++;
+            }
+        } else {
+            if ( (known_felons_inside_count + inside_count) > 0) {
+                if (events[i].felon_id == 0) {
+                    inside_count--;
+                } else {
+                    bool felon_was_seen_entering = false;
+                    for (int j=i-1; j >= 0; --j) {
+                        if (events[j].felon_id == events[i].felon_id) {
+                            if (events[j].entered) {
+                                felon_was_seen_entering = true;
+                            }
+                            break;
+                        }
+                    }
+
+                    if (felon_was_seen_entering) {
+                        known_felons_inside_count--;
+                    } else {
+                        inside_count--;
+                    }
+                }
+
+                if (known_felons_inside_count + inside_count <= 0) {
+                    known_felons_inside_count = 0;
+                    inside_count = 0;
+                }
+            }
+        }
+    }
+    cout << inside_count + known_felons_inside_count << endl;
 }
 
 int main(int argc, char *argv[]) {
